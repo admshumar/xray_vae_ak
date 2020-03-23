@@ -1,5 +1,8 @@
 from vae_model import encoder_decoder
 import numpy as np
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 size_image = (224, 224, 1)
 
