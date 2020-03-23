@@ -93,7 +93,7 @@ def encoder_decoder(input_size,d=3):
 
     z_mean_reshape = Reshape((int(512*cf),1),name='r1')(z_mean)
     z_log_var_reshape = Reshape((int(512*cf),1),name='r2')(z_log_var)
-    z_concatenate = Concatenate(axis=-1)([z_mean_reshape,z_log_var_reshape])
+    z_concatenate = Concatenate(axis=-1)([z_mean_reshape, z_log_var_reshape])
     
     encoder_model = Model(inputs,[z,z_concatenate])
     encoder_model.summary()
