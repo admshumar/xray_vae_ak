@@ -21,7 +21,7 @@ import pickle
 def plot_results(models,
                  data,
                  batch_size=128,
-                 model_name="vae_mnist",epoch=1):
+                 model_name="vae_mnist", epoch=1):
     """Plots labels and MNIST digits as a function of the 2D latent vector
 
     # Arguments
