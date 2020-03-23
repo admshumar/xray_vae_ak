@@ -25,7 +25,7 @@ from unittest.mock import MagicMock
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 from numpy.random import seed
 
 seed(1)
