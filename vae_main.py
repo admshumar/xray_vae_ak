@@ -7,7 +7,7 @@ Created on Wed Dec  4 11:33:13 2019
 """
 import tensorflow.keras.backend as K
 import tensorflow as tf
-#from keras.datasets import mnist
+# from keras.datasets import mnist
 from vae_model import encoder_decoder, encoder_decoder_conv
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,76 +17,93 @@ from tensorflow.keras.optimizers import Adam
 from plot_results import plot_results
 from skimage.transform import resize
 from tensorflow.keras.callbacks import ReduceLROnPlateau
-#from tensorflow.keras import objectives
+# from tensorflow.keras import objectives
 from sklearn.utils import class_weight
 import os
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-os.environ["CUDA_VISIBLE_DEVICES"]="2"
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 from numpy.random import seed
+
 seed(1)
 
+
 # MNIST dataset
-def scheduler(epoch,n_ep,init_lr):
-    m = init_lr * pow((1- (epoch/n_ep)),1.5)
+def scheduler(epoch, n_ep, init_lr):
+    m = init_lr * pow((1 - (epoch / n_ep)), 1.5)
     print(m)
     return m
 
 
-def schedule_lr(n_ep,init_lr):
+def schedule_lr(n_ep, init_lr):
     def scheduler(epoch):
-        m = init_lr * pow((1- (epoch/n_ep)),1.5)
+        m = init_lr * pow((1 - (epoch / n_ep)), 1.5)
         print(m)
         return m
+
     return scheduler
 
 
+size_image = (224, 224, 1)
 
-size_image = (224,224,1)
+# build the model
+encoder_model, decoder_model, encoder_decoder_model = encoder_decoder(size_image, 2)
 
-#build the model
-encoder_model, decoder_model, encoder_decoder_model = encoder_decoder(size_image,2)
-
-#fix the loss
+# fix the loss
 encoder_decoder_model.summary()
 
 opt = Adam(lr=0.001)
 # loss
-#encoder_decoder_model.compile(loss = loss(z_mean,z_log_var,(1,160,160,1)),optimizer=opt)
+# encoder_decoder_model.compile(loss = loss(z_mean,z_log_var,(1,160,160,1)),optimizer=opt)
 batch_size = 64
-encoder_decoder_model.compile(loss = [recon_loss((160,160)), loss((batch_size,)+size_image)],optimizer=opt)
-train_datagen = ImageDataGenerator(featurewise_center=False, featurewise_std_normalization=False, horizontal_flip=False,rescale=1./255)
+encoder_decoder_model.compile(loss=[recon_loss((160, 160)), loss((batch_size,) + size_image)], optimizer=opt)
 
-train_generator = train_datagen.flow_from_directory('/datadrive/ffaye/chest_xray/train/', target_size=size_image[:-1], batch_size=6000, shuffle=True, seed=42, color_mode='grayscale',interpolation='bicubic')
+# Instantiate data generators
+train_datagen = ImageDataGenerator(featurewise_center=False, featurewise_std_normalization=False, horizontal_flip=False,
+                                   rescale=1. / 255)
+val_datagen = ImageDataGenerator(featurewise_center=False, featurewise_std_normalization=False, horizontal_flip=False,
+                                 rescale=1. / 255)
+test_datagen = ImageDataGenerator(rescale=1. / 255)
 
-test_datagen = ImageDataGenerator(rescale=1./255)
-validation_generator = test_datagen.flow_from_directory( '/datadrive/ffaye/chest_xray/test/',target_size=size_image[:-1], batch_size=6000, shuffle=True,seed=42, color_mode='grayscale', interpolation='bicubic')
-
+train_generator = train_datagen.flow_from_directory('/datadrive/ffaye/chest_xray/train/', target_size=size_image[:-1],
+                                                    batch_size=6000, shuffle=True, seed=42, color_mode='grayscale',
+                                                    interpolation='bicubic')
+val_generator = val_datagen.flow_from_directory('/datadrive/ffaye/chest_xray/val/', target_size=size_image[:-1],
+                                                batch_size=6000, shuffle=True, seed=42, color_mode='grayscale',
+                                                interpolation='bicubic')
+test_generator = test_datagen.flow_from_directory('/datadrive/ffaye/chest_xray/test/', target_size=size_image[:-1],
+                                                  batch_size=6000, shuffle=True, seed=42, color_mode='grayscale',
+                                                  interpolation='bicubic')
 
 for i in range(200):
-
     x_train, y_train = next(train_generator)
-    #x_train = np.expand_dims(x_train[...,0],axis=-1)
+    # x_train = np.expand_dims(x_train[...,0],axis=-1)
 
-    class_weights = class_weight.compute_class_weight('balanced', np.unique(np.argmax(y_train,axis=-1)),np.argmax(y_train,axis=-1))
-    #cw = (class_weights,[])
-    print('num labels is ',y_train.shape)
-    print('the mean is ',np.mean(x_train))
-    print('the number of nans is ',np.count_nonzero(np.isnan(x_train)))
+    class_weights = class_weight.compute_class_weight('balanced', np.unique(np.argmax(y_train, axis=-1)),
+                                                      np.argmax(y_train, axis=-1))
+    # cw = (class_weights,[])
+    print('num labels is ', y_train.shape)
+    print('the mean is ', np.mean(x_train))
+    print('the number of nans is ', np.count_nonzero(np.isnan(x_train)))
 
-    
-    x_test, y_test = next(validation_generator)
-    #x_test = np.expand_dims(x_test[...,0],axis=-1)
-    
-    z_dummy = np.zeros((x_train.shape[0],512,2))
-    z_dummy_test = np.zeros((x_test.shape[0],512,2))
+    x_val, y_val = next(val_generator)
 
+    x_test, y_test = next(test_generator)
+    # x_test = np.expand_dims(x_test[...,0],axis=-1)
 
-    print('the learning rate is ',K.eval(encoder_decoder_model.optimizer.lr))
-    reduce_lr = tf.keras.callbacks.LearningRateScheduler(schedule_lr(200,K.eval(encoder_decoder_model.optimizer.lr)))
-    encoder_decoder_model.fit(x_train, [x_train,z_dummy], epochs=10, batch_size=batch_size, validation_data=[x_test,[x_test,z_dummy_test]],shuffle=True, callbacks = [reduce_lr])
-    #encoder_decoder_model.fit_generator(train_generator,steps_per_epoch=2000,epochs=20,validation_data=validation_generator,validation_steps=800,verbose=1)
+    z_dummy = np.zeros((x_train.shape[0], 512, 2))
+    z_dummy_val = np.zeros((x_val.shape[0], 512, 2))
+    z_dummy_test = np.zeros((x_test.shape[0], 512, 2))
+
+    print('the learning rate is ', K.eval(encoder_decoder_model.optimizer.lr))
+    reduce_lr = tf.keras.callbacks.LearningRateScheduler(schedule_lr(200, K.eval(encoder_decoder_model.optimizer.lr)))
+    encoder_decoder_model.fit(x_train, [x_train, z_dummy], epochs=10, batch_size=batch_size,
+                              validation_data=[x_val, [x_val, z_dummy_val]], shuffle=True, callbacks=[reduce_lr])
+    # encoder_decoder_model.fit_generator(train_generator,steps_per_epoch=2000,epochs=20,validation_data=validation_generator,validation_steps=800,verbose=1)
     encoder_decoder_model.save_weights('vae_chest.h5')
     decoder_model.save_weights('vae_decoder_chest.h5')
     encoder_model.save_weights('vae_encoder_chest.h5')
-    
-    plot_results((encoder_model,decoder_model),(x_test, np.argmax(y_test,axis=-1), x_train, np.argmax(y_train,axis=-1)),batch_size=128,model_name="vae_mlp",epoch=i)
+
+    plot_results((encoder_model, decoder_model),
+                 (x_test, np.argmax(y_test, axis=-1), x_train, np.argmax(y_train, axis=-1)), batch_size=128,
+                 model_name="vae_mlp", epoch=i)
