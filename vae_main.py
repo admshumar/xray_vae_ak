@@ -77,25 +77,22 @@ z_dummy = np.zeros((x_train.shape[0], 512, 2))
 z_dummy_val = np.zeros((x_val.shape[0], 512, 2))
 z_dummy_test = np.zeros((x_test.shape[0], 512, 2))
 
-"""
+
 early_stop = EarlyStopping(monitor='val_loss',
                            min_delta=1e-2,
-                           patience=10,
+                           patience=20,
                            mode='auto',
                            restore_best_weights=True)
-"""
 
+print('the learning rate is ', K.eval(encoder_decoder_model.optimizer.lr))
+reduce_lr = tf.keras.callbacks.LearningRateScheduler(schedule_lr(200, K.eval(encoder_decoder_model.optimizer.lr)))
+encoder_decoder_model.fit(x_train, [x_train, z_dummy], epochs=200, batch_size=batch_size,
+                          validation_data=[x_val, [x_val, z_dummy_val]], shuffle=True, callbacks=[reduce_lr, early_stop])
 
-for i in range(10):
-    print('the learning rate is ', K.eval(encoder_decoder_model.optimizer.lr))
-    reduce_lr = tf.keras.callbacks.LearningRateScheduler(schedule_lr(200, K.eval(encoder_decoder_model.optimizer.lr)))
-    encoder_decoder_model.fit(x_train, [x_train, z_dummy], epochs=20, batch_size=batch_size,
-                              validation_data=[x_val, [x_val, z_dummy_val]], shuffle=True, callbacks=[reduce_lr])
+encoder_decoder_model.save_weights('vae_chest.h5')
+decoder_model.save_weights('vae_decoder_chest.h5')
+encoder_model.save_weights('vae_encoder_chest.h5')
 
-    encoder_decoder_model.save_weights('vae_chest.h5')
-    decoder_model.save_weights('vae_decoder_chest.h5')
-    encoder_model.save_weights('vae_encoder_chest.h5')
-
-    plot_results((encoder_model, decoder_model),
-                 (x_test, np.argmax(y_test, axis=-1), x_train, np.argmax(y_train, axis=-1)), batch_size=128,
-                 model_name="vae_mlp", epoch=i)
+plot_results((encoder_model, decoder_model),
+             (x_test, np.argmax(y_test, axis=-1), x_train, np.argmax(y_train, axis=-1)), batch_size=128,
+             model_name="vae_mlp", epoch=0)
