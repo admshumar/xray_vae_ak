@@ -59,12 +59,12 @@ opt = Adam(lr=0.001)
 batch_size = 64
 encoder_decoder_model.compile(loss=[recon_loss((160, 160)), loss((batch_size,) + size_image)], optimizer=opt)
 
-x_train = np.load('x_train.py')
-x_val = np.load('x_val.py')
-x_test = np.load('x_test.py')
-y_train = np.load('y_train.py')
-y_val = np.load('y_val.py')
-y_test = np.load('y_test.py')
+x_train = np.load('x_train.npy')
+x_val = np.load('x_val.npy')
+x_test = np.load('x_test.npy')
+y_train = np.load('y_train.npy')
+y_val = np.load('y_val.npy')
+y_test = np.load('y_test.npy')
 
 class_weights = class_weight.compute_class_weight('balanced',
                                                   np.unique(np.argmax(y_train, axis=-1)),
