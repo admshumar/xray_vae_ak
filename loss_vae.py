@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Dec  4 11:42:22 2019
+
+@author: akshay
+"""
+
+import tensorflow.keras.backend as K
+
+def loss(shape):
+
+    def loss_vae(y_true,y_pred):
+
+        z_mean = y_pred[:,0]
+        z_log_var = y_pred[:,1]
+        
+        
+        kl_loss = 1 + z_log_var - K.square(z_mean) - K.exp(z_log_var)
+        kl_loss = K.sum(kl_loss, axis=-1)
+        kl_loss *= -0.5
+        
+        return kl_loss
+
+
+    return loss_vae
+
+
+def recon_loss(shape):
+
+    def loss_recon(y_true,y_pred):
+
+        reconstruction_loss = K.sum(K.square(y_true - y_pred))
+
+        return reconstruction_loss
+
+    return loss_recon
+
+    
