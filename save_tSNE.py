@@ -34,7 +34,8 @@ class LatentSpaceTSNE:
                        embedded_data[:, 1],
                        c=self.labels,
                        cmap=matplotlib.colors.ListedColormap(self.color_list))
-            ax.legend()
+            ax.legend(('1', '2', '3'))
+            #plt.gca().legend()
         else:
             ax = fig_3d.add_subplot(projection='3d')
             ax.scatter(embedded_data[:, 0],
@@ -42,7 +43,7 @@ class LatentSpaceTSNE:
                        embedded_data[:, 2],
                        c=self.labels,
                        cmap=matplotlib.colors.ListedColormap(self.color_list))
-            ax.legend()
+            ax.legend(('1', '2', '3'))
 
         ax.set_title('t-SNE with Perplexity {}'.format(perplexity))
         filename = 'latent_tsne_{}.png'.format(perplexity)
