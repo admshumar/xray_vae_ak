@@ -52,4 +52,4 @@ def logistic_regression(data,labels, data_test, labels_test):
 
     return logistic_regressor
 
-logistic_regression(x_train_latent, y_train, x_test_latent, y_test)
+logistic_regression(x_train_latent, np.argmax(y_train,axis=-1) , x_test_latent, np.argmax(y_test, axis=-1))
