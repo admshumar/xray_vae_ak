@@ -115,17 +115,17 @@ def encoder_decoder(input_size,d=3):
     
     x_up = DeconvolutionND(int(512*cf),kernel_size=4,strides=2,padding='same')(x_up)
     x_up = Activation('relu')(x_up)
-    #x_up = Concatenate(axis=-1)([x_up,x3])
+    x_up = Concatenate(axis=-1)([x_up,x3])
     #x_up = BatchNormalization()(x_up)
     
     x_up = DeconvolutionND(int(256*cf),kernel_size=4,strides=2,padding='same')(x_up)
     x_up = Activation('relu')(x_up)
-    #x_up = Concatenate(axis=-1)([x_up,x2])
+    x_up = Concatenate(axis=-1)([x_up,x2])
     #x_up = BatchNormalization()(x_up)
     
     x_up = DeconvolutionND(int(128*cf),kernel_size=4,strides=2,padding='same')(x_up)
     x_up = Activation('relu')(x_up)
-    #x_up = Concatenate(axis=-1)([x_up,x1])
+    x_up = Concatenate(axis=-1)([x_up,x1])
     #x_up = BatchNormalization()(x_up)
 
     x_up = DeconvolutionND(int(64*cf),kernel_size=4,strides=2,padding='same')(x_up)
