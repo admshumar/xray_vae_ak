@@ -48,14 +48,22 @@ np.save('x_test_latent.npy', x_test_latent)
 def logistic_regression(data, labels, data_test, labels_test):
     print("Logistic regression input shapes:")
     print(data.shape, labels.shape, data_test.shape, labels_test.shape)
+
+    # Fit logistic regression model to training data
     logistic_regressor = LogisticRegression(multi_class='multinomial', max_iter=5000)
     logistic_regressor.fit(data, labels)
-    y_train_soft = logistic_regressor.predict_proba(data_test)
+
+    # Produce soft labels for the training set
+    y_train_soft = logistic_regressor.predict_proba(data)
     np.save('y_train_soft.npy', y_train_soft)
 
+    # Produce soft labels for the test set
+    y_test_soft = logistic_regressor.predict_proba(data_test)
+    np.save('y_test_soft.npy', y_test_soft)
+
     print('the score is ', logistic_regressor.score(data_test, labels_test))
-    print('the precision is ', precision_score(labels_test, np.argmax(y_train_soft, axis=-1), average='weighted'))
-    print('the recall is ', recall_score(labels_test, np.argmax(y_train_soft, axis=-1), average='weighted'))
+    print('the precision is ', precision_score(labels_test, np.argmax(y_test_soft, axis=-1), average='weighted'))
+    print('the recall is ', recall_score(labels_test, np.argmax(y_test_soft, axis=-1), average='weighted'))
 
     return logistic_regressor
 
