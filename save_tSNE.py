@@ -15,13 +15,14 @@ class LatentSpaceTSNE:
         self.directory = directory
         self.filename = filename
         self.labels = labels
+        self.classes = np.unique()
         self.perplexity_list = [30]
         self.color_list = ['#00B7BA', '#FFB86F', '#5E6572', '#6B0504', '#BA5C12']
 
         print('the shapes are ',labels.shape, data.shape)
 
     def save_tsne(self):
-        
+
         for perplexity in self.perplexity_list:
             embedded_data = TSNE(n_components=self.number_of_tnse_components,
                                  perplexity=perplexity).fit_transform(self.data)
