@@ -51,3 +51,6 @@ class LatentSpaceTSNE:
         ax.set_title('t-SNE with Perplexity {}'.format(self.perplexity))
         file_path = os.path.join(self.directory, self.filename)
         fig_3d.savefig(file_path)
+
+t = LatentSpaceTSNE(np.load('x_train_latent.npy'), np.load('y_train.npy'), '.')
+t.save_tsne()
