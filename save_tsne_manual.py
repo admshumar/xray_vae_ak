@@ -5,14 +5,17 @@ import numpy as np
 
 
 class LatentSpaceTSNE:
-    def __init__(self, data, labels, directory, number_of_tnse_components=2):
+    def __init__(self, data, labels, directory, number_of_tnse_components=2, filename=None):
         if number_of_tnse_components in (2, 3):
             self.number_of_tnse_components = number_of_tnse_components
         else:
             self.number_of_tnse_components = 2
         self.data = data
         self.directory = directory
-        self.filename = 'tsne.png'
+        if filename:
+            self.filename = filename
+        else:
+            self.filename = 'tsne.png'
         self.labels = np.argmax(labels, axis=-1)
         self.perplexity = 30
         self.classes = np.unique(np.argmax(labels, axis=-1))
@@ -58,12 +61,12 @@ class LatentSpaceTSNE:
         file_path = os.path.join(self.directory, self.filename)
         fig_3d.savefig(file_path)
 
-t = LatentSpaceTSNE(np.load('x_train_latent.npy'), np.load('y_train.npy'), '.')
+t = LatentSpaceTSNE(np.load('x_train_latent.npy'), np.load('y_train.npy'), '.', filename='tsne_x_train.png')
 # t.save_embedding('tsne_embedding_x_train.npy')
 t.save_tsne()
 del t
 
-t = LatentSpaceTSNE(np.load('x_test_latent.npy'), np.load('y_test.npy'), '.')
+t = LatentSpaceTSNE(np.load('x_test_latent.npy'), np.load('y_test.npy'), '.', filename='tsne_x_test.png')
 # t.save_embedding('tsne_embedding_x_test.npy')
 t.save_tsne()
 del t
