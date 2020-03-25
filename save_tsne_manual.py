@@ -13,24 +13,25 @@ class LatentSpaceTSNE:
         self.data = data
         self.directory = directory
         self.filename = 'tsne.png'
-        self.labels = labels
+        self.labels = np.argmax(labels, axis=-1)
         self.perplexity = 30
-        self.classes = np.unique(labels)
+        self.classes = np.unique(np.argmax(labels, axis=-1))
         color_list = ['#00B7BA', '#FFB86F', '#5E6572', '#6B0504', '#BA5C12']
         self.color_list = color_list
         self.color_dict = {i: color_list[i] for i in range(len(color_list))}
 
         print('the shapes are ', labels.shape, data.shape)
 
-    def save_embedding(self, filename):
-        embedded_data = TSNE(n_components=self.number_of_tnse_components,
+    def get_embedding(self):
+        return TSNE(n_components=self.number_of_tnse_components,
                              perplexity=self.perplexity).fit_transform(self.data)
+
+    def save_embedding(self, filename):
+        embedded_data = self.get_embedding()
         np.save(filename, embedded_data)
 
     def save_tsne(self):
-
-        embedded_data = TSNE(n_components=self.number_of_tnse_components,
-                             perplexity=self.perplexity).fit_transform(self.data)
+        embedded_data = self.get_embedding()
         fig_3d = plt.figure(dpi=200)
 
         if self.number_of_tnse_components == 2:
@@ -58,9 +59,11 @@ class LatentSpaceTSNE:
         fig_3d.savefig(file_path)
 
 t = LatentSpaceTSNE(np.load('x_train_latent.npy'), np.load('y_train.npy'), '.')
-t.save_embedding('tsne_embedding_x_train.npy')
+# t.save_embedding('tsne_embedding_x_train.npy')
+t.save_tsne()
 del t
 
 t = LatentSpaceTSNE(np.load('x_test_latent.npy'), np.load('y_test.npy'), '.')
-t.save_embedding('tsne_embedding_x_test.npy')
+# t.save_embedding('tsne_embedding_x_test.npy')
+t.save_tsne()
 del t
