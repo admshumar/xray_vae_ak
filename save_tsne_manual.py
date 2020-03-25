@@ -22,6 +22,11 @@ class LatentSpaceTSNE:
 
         print('the shapes are ', labels.shape, data.shape)
 
+    def save_embedding(self):
+        embedded_data = TSNE(n_components=self.number_of_tnse_components,
+                             perplexity=self.perplexity).fit_transform(self.data)
+        np.save('tsne_embedding.npy', embedded_data)
+
     def save_tsne(self):
 
         embedded_data = TSNE(n_components=self.number_of_tnse_components,
@@ -53,4 +58,4 @@ class LatentSpaceTSNE:
         fig_3d.savefig(file_path)
 
 t = LatentSpaceTSNE(np.load('x_train_latent.npy'), np.load('y_train.npy'), '.')
-t.save_tsne()
+t.save_embedding()
